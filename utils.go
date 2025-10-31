@@ -73,11 +73,34 @@ func HttpGETDocument(url string) (*goquery.Document, error) {
 	return doc, nil
 }
 
-func HttpGETGJson(url string) (*gjson.Result, error) {
+func HttpGETGJson(url string) (gjson.Result, error) {
 	body, err := HttpGET(url)
-	if err != nil { return nil, err }
-	ret := gjson.Parse(body)
-	return &ret, nil
+	if err != nil { return gjson.Result{}, err }
+	return gjson.Parse(body), nil
+}
+
+func HttpPOST(url string, body string, header *map[string]string) (string, error) {
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
+	if err != nil { return "", err }
+
+	if header != nil {
+		for k, v := range *header { req.Header.Set(k, v) }
+	}
+
+	res, err := (&http.Client{}).Do(req)
+	if err != nil { return "", err }
+	defer res.Body.Close()
+
+	b, err := io.ReadAll(res.Body)
+	if err != nil { return "", err }
+
+	return string(b), nil
+}
+
+func HttpPOSTGJson(url string, body string, header *map[string]string) (gjson.Result, error) {
+	body, err := HttpPOST(url, body, header)
+	if err != nil { return gjson.Result{}, err }
+	return gjson.Parse(body), nil
 }
 
 func JsonRead[T any](path string) (T, error) {
