@@ -87,16 +87,16 @@ func JsonRead[T any](path string) (T, error) {
 func JsonWrite(path string, data any) error {
 	err := os.MkdirAll(filepath.Dir(path), 0755)
 	if err != nil { return err }
-
+	
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil { return err }
 
 	tmp := path + ".tmp"
 	err = os.WriteFile(tmp, jsonData, 0644)
-	if err == nil { return err }
+	if err != nil { return err }
 
 	err = os.Rename(tmp, path)
 	if err != nil { os.Remove(tmp); return err }
-
+	
 	return nil
 }
