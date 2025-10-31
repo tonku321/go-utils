@@ -17,6 +17,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/davecgh/go-spew/spew"
 	. "github.com/samber/lo"
+	"github.com/tidwall/gjson"
 )
 
 func Println(args ...any) { fmt.Println(args...) }
@@ -72,6 +73,13 @@ func HttpGETDocument(url string) (*goquery.Document, error) {
 	return doc, nil
 }
 
+func HttpGETGJson(url string) (*gjson.Result, error) {
+	body, err := HttpGET(url)
+	if err != nil { return nil, err }
+	ret := gjson.Parse(body)
+	return &ret, nil
+}
+
 func JsonRead[T any](path string) (T, error) {
 	var result T
 
@@ -87,7 +95,7 @@ func JsonRead[T any](path string) (T, error) {
 func JsonWrite(path string, data any) error {
 	err := os.MkdirAll(filepath.Dir(path), 0755)
 	if err != nil { return err }
-	
+
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil { return err }
 
@@ -97,6 +105,6 @@ func JsonWrite(path string, data any) error {
 
 	err = os.Rename(tmp, path)
 	if err != nil { os.Remove(tmp); return err }
-	
+
 	return nil
 }
