@@ -20,7 +20,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type Dict map[string]any
+type AnyMap map[string]any
 
 func Println(args ...any) { fmt.Println(args...) }
 func Dump(args ...any) { spew.Config.Indent = "    "; spew.Dump(args...) }
